@@ -1,20 +1,28 @@
 import 'package:cet_app/data/models/financing_model.dart';
 import 'package:cet_app/domain/usecases/calculate_cet.dart';
+import 'package:cet_app/domain/usecases/calculate_installment.dart';
 import 'package:flutter/material.dart';
 
-class HomeViewModel extends ChangeNotifier{
+class HomeViewModel extends ChangeNotifier {
+  int currentScreenId = 1;
+
   double totalValue = 0.0;
   double entryValue = 0.0;
   int numInstallments = 0;
   double installmentValue = 0.0;
+  double interestValue = 0.0;
 
-  double? cetValue; 
+  double? cetValue;
+  double? desiredInstallmentValue;
+
+  void setScreenSelection(int value) {
+    currentScreenId = value;
+    notifyListeners();
+  }
 
   void setTotalValue(String value) {
-    String numericValue = value
-      .replaceAll('R\$', '')
-      .replaceAll('.', '')
-      .replaceAll(',', '.');
+    String numericValue =
+        value.replaceAll('R\$', '').replaceAll('.', '').replaceAll(',', '.');
     double parsedValue = double.tryParse(numericValue) ?? 0.0;
 
     totalValue = parsedValue;
@@ -22,10 +30,8 @@ class HomeViewModel extends ChangeNotifier{
   }
 
   void setEntryValue(String value) {
-    String numericValue = value
-      .replaceAll('R\$', '')
-      .replaceAll('.', '')
-      .replaceAll(',', '.');
+    String numericValue =
+        value.replaceAll('R\$', '').replaceAll('.', '').replaceAll(',', '.');
     double parsedValue = double.tryParse(numericValue) ?? 0.0;
 
     entryValue = parsedValue;
@@ -33,10 +39,8 @@ class HomeViewModel extends ChangeNotifier{
   }
 
   void setInstallmentValue(String value) {
-    String numericValue = value
-      .replaceAll('R\$', '')
-      .replaceAll('.', '')
-      .replaceAll(',', '.');
+    String numericValue =
+        value.replaceAll('R\$', '').replaceAll('.', '').replaceAll(',', '.');
     double parsedValue = double.tryParse(numericValue) ?? 0.0;
 
     installmentValue = parsedValue;
@@ -48,12 +52,18 @@ class HomeViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
+  void setInterestValue(String value) {
+    double percentageNumber = double.tryParse(value) ?? 0.0;
+    interestValue = percentageNumber / 100;
+    notifyListeners();
+  }
+
   void calculateCETValue() {
-      if (totalValue <= 0 || numInstallments <= 0 || installmentValue <= 0) {
+    double financedValue = totalValue - entryValue;
+
+    if (financedValue <= 0 || numInstallments <= 0 || installmentValue <= 0) {
       return; // Avoid invalid calculations
     }
-
-    double financedValue = totalValue - entryValue;
 
     FinancingModel financing = FinancingModel(
       financedValue: financedValue,
@@ -62,6 +72,23 @@ class HomeViewModel extends ChangeNotifier{
     );
 
     cetValue = calculateCET(financing);
+    notifyListeners(); // Updates the UI
+  }
+
+  void calculateInstallmentValue() {
+    double financedValue = totalValue - entryValue;
+
+    if (financedValue <= 0 || numInstallments <= 0 || interestValue <= 0) {
+      return; // Avoid invalid calculations
+    }
+
+    FinancingModel financing = FinancingModel(
+      financedValue: financedValue,
+      numInstallments: numInstallments,
+      interestValue: interestValue,
+    );
+
+    desiredInstallmentValue = calculateInstallment(financing);
     notifyListeners(); // Updates the UI
   }
 }

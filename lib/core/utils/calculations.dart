@@ -1,8 +1,9 @@
 import 'package:cet_app/core/constants/app_values.dart';
 import 'dart:math';
 
-double calculateEffectiveMonthlyRate(double financedValue, double installmentValue, int numInstallments) {
-  double interestRate = 0.0; 
+double calculateEffectiveMonthlyRate(
+    double financedValue, double installmentValue, int numInstallments) {
+  double interestRate = 0.0;
 
   double guessRate = AppValues.initialGuess; // Chute inicial da taxa
   double tolerance = AppValues.tolerance; // Precisão desejada
@@ -26,8 +27,25 @@ double calculateEffectiveMonthlyRate(double financedValue, double installmentVal
     }
 
     guessRate = newRate;
-    print("Iteration $i: guessRate = $guessRate, calculatedValue = $f");
   }
 
   throw Exception("Falha ao calcular o CET. Pode não ter convergido.");
+}
+
+double calculateDesiredInstallmentValue(
+    double financedValue, double interestRate, int numInstallments) {
+  if (interestRate == 0) {
+    // Se a taxa de juros for zero, simplesmente dividimos o valor financiado pelo número de prestações
+    return financedValue / numInstallments;
+  }
+
+  double rate = interestRate; // Taxa já em formato decimal
+
+  // Fórmula para cálculo da prestação
+  double numerator = rate * pow(1 + rate, numInstallments);
+  double denominator = pow(1 + rate, numInstallments) - 1;
+
+  double installmentValue = financedValue * (numerator / denominator);
+
+  return installmentValue;
 }

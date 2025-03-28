@@ -2,12 +2,12 @@ class FinancingModel {
   final double financedValue;
   final int numInstallments;
   final double installmentValue;
+  final double interestValue;
 
-  FinancingModel(
-    {
-      required this.financedValue,
-      required this.numInstallments,
-      required this.installmentValue,
-    }
-  );
+  FinancingModel({
+    this.financedValue = 0,
+    this.numInstallments = 0,
+    this.installmentValue = 0,
+    this.interestValue = 0,
+  });
 }
