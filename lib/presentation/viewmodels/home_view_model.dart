@@ -1,6 +1,8 @@
 import 'package:cet_app/data/models/financing_model.dart';
+import 'package:cet_app/domain/usecases/calculate_added_installment_value.dart';
 import 'package:cet_app/domain/usecases/calculate_cet.dart';
 import 'package:cet_app/domain/usecases/calculate_installment.dart';
+import 'package:cet_app/domain/usecases/calculate_real_value.dart';
 import 'package:flutter/material.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -14,6 +16,8 @@ class HomeViewModel extends ChangeNotifier {
 
   double? cetValue;
   double? desiredInstallmentValue;
+  double? realValue;
+  double? addedValue;
 
   void setScreenSelection(int value) {
     currentScreenId = value;
@@ -72,6 +76,8 @@ class HomeViewModel extends ChangeNotifier {
     );
 
     cetValue = calculateCET(financing);
+    realValue = calculateRealValue(financing, cetValue!, entryValue);
+    addedValue = calculateAddedInstallmentValue(financing);
     notifyListeners(); // Updates the UI
   }
 

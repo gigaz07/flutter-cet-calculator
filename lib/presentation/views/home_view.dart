@@ -11,55 +11,62 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final safeAreaHeight = MediaQuery.of(context).size.height
+      - MediaQuery.of(context).padding.top
+      - MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
         color: AppColors.backgroundColor,
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Padding(
-              padding:
-                  EdgeInsets.only(top: 40, left: 24, right: 24, bottom: 24),
-              child: Column(
-                children: [
-                  CustomSlidingSegmentedControl<int>(
-                    innerPadding: EdgeInsets.all(6),
-                    height: 60,
-                    isStretch: true,
-                    initialValue:
-                        context.watch<HomeViewModel>().currentScreenId,
-                    children: {
-                      1: Text(
-                        'Calcular CET',
-                        textAlign: TextAlign.center,
-                        style: AppFonts.titleTextFont,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              height: safeAreaHeight,
+              child: Padding(
+                padding:
+                    EdgeInsets.fromLTRB(24, 12, 24, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    CustomSlidingSegmentedControl<int>(
+                      innerPadding: EdgeInsets.all(6),
+                      height: 60,
+                      isStretch: true,
+                      initialValue:
+                          context.watch<HomeViewModel>().currentScreenId,
+                      children: {
+                        1: Text(
+                          'Calcular CET',
+                          textAlign: TextAlign.center,
+                          style: AppFonts.titleTextFont,
+                        ),
+                        2: Text(
+                          'Calcular Parcela',
+                          textAlign: TextAlign.center,
+                          style: AppFonts.titleTextFont,
+                        ),
+                      },
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      2: Text(
-                        'Calcular Parcela',
-                        textAlign: TextAlign.center,
-                        style: AppFonts.titleTextFont,
+                      thumbDecoration: BoxDecoration(
+                        color: AppColors.darkTextColor,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    },
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.circular(12),
+                      onValueChanged: (int value) {
+                        context.read<HomeViewModel>().setScreenSelection(value);
+                      },
                     ),
-                    thumbDecoration: BoxDecoration(
-                      color: AppColors.darkTextColor,
-                      borderRadius: BorderRadius.circular(12),
+                    Expanded(
+                      child: _buildContent(
+                          context.watch<HomeViewModel>().currentScreenId,
+                          context),
                     ),
-                    onValueChanged: (int value) {
-                      context.read<HomeViewModel>().setScreenSelection(value);
-                    },
-                  ),
-                  SizedBox(height: 24),
-                  Expanded(
-                    child: _buildContent(
-                        context.watch<HomeViewModel>().currentScreenId,
-                        context),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -72,24 +79,50 @@ class HomeView extends StatelessWidget {
     switch (currentScreenId) {
       case 1:
         return Column(
+          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              children: [
-                Text(
-                  context.watch<HomeViewModel>().cetValue != null
-                      ? context
-                          .watch<HomeViewModel>()
-                          .cetValue!
-                          .toStringAsFixed(2)
-                      : "0",
-                  style: AppFonts.resultTextFont,
-                ),
-                Text(
-                  "% / mês",
-                  style: AppFonts.resultUnitTextFont,
-                )
-              ],
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    context.watch<HomeViewModel>().cetValue != null
+                        ? context
+                            .watch<HomeViewModel>()
+                            .cetValue!
+                            .toStringAsFixed(2)
+                        : "0",
+                    style: AppFonts.resultTextFont,
+                  ),
+                  Text(
+                    "% / mês",
+                    style: AppFonts.resultUnitTextFont,
+                  ),
+                  Text(
+                    context.watch<HomeViewModel>().realValue != null
+                        ? "Valor real: R\$ ${
+                          context
+                            .watch<HomeViewModel>()
+                            .realValue!
+                            .toStringAsFixed(2)
+                          }"
+                        : "Calcule para saber o valor real.",
+                    style: AppFonts.mainTextFont,
+                  ),
+                  Text(
+                    context.watch<HomeViewModel>().addedValue != null
+                        ? "Valor adicionado a parcela: R\$ ${
+                          context
+                            .watch<HomeViewModel>()
+                            .addedValue!
+                            .toStringAsFixed(2)
+                          }"
+                        : "",
+                    style: AppFonts.mainTextFont,
+                  )
+                ],
+              ),
             ),
             Column(
               children: [
@@ -119,12 +152,11 @@ class HomeView extends StatelessWidget {
                         ),
                         SizedBox(height: 12),
                         NumberInputField(
+                          key: ValueKey('installmentValueInput'),
                           title: "Valor de parcela:",
                           hint: "RS 900,00",
                           onChanged: (value) {
-                            context
-                                .read<HomeViewModel>()
-                                .setInstallmentValue(value);
+                            context.read<HomeViewModel>().setInstallmentValue(value);
                           },
                         ),
                         SizedBox(height: 12),
@@ -133,9 +165,7 @@ class HomeView extends StatelessWidget {
                           hint: "100",
                           inputType: InputType.integer,
                           onChanged: (value) {
-                            context
-                                .read<HomeViewModel>()
-                                .setNumInstallments(value);
+                            context.read<HomeViewModel>().setNumInstallments(value);
                           },
                         ),
                       ],
@@ -155,22 +185,25 @@ class HomeView extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              children: [
-                Text(
-                  context.watch<HomeViewModel>().desiredInstallmentValue != null
-                      ? context
-                          .watch<HomeViewModel>()
-                          .desiredInstallmentValue!
-                          .toStringAsFixed(2)
-                      : "0",
-                  style: AppFonts.resultTextFont,
-                ),
-                Text(
-                  "reais / mês",
-                  style: AppFonts.resultUnitTextFont,
-                )
-              ],
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    context.watch<HomeViewModel>().desiredInstallmentValue != null
+                        ? context
+                            .watch<HomeViewModel>()
+                            .desiredInstallmentValue!
+                            .toStringAsFixed(2)
+                        : "0",
+                    style: AppFonts.resultTextFont,
+                  ),
+                  Text(
+                    "R\$ / mês",
+                    style: AppFonts.resultUnitTextFont,
+                  )
+                ],
+              ),
             ),
             Column(
               children: [
@@ -200,13 +233,12 @@ class HomeView extends StatelessWidget {
                         ),
                         SizedBox(height: 12),
                         NumberInputField(
+                          key: ValueKey('interestRateInput'),
                           title: "Valor dos juros:",
                           hint: "2.25%",
                           inputType: InputType.percentage,
                           onChanged: (value) {
-                            context
-                                .read<HomeViewModel>()
-                                .setInterestValue(value);
+                            context.read<HomeViewModel>().setInterestValue(value);
                           },
                         ),
                         SizedBox(height: 12),

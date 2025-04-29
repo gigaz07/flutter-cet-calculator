@@ -49,3 +49,19 @@ double calculateDesiredInstallmentValue(
 
   return installmentValue;
 }
+
+double calculateRealFinancedValue(
+    double entryValue, int numInstallments, double installmentValue) {
+  double realValue = entryValue + installmentValue * numInstallments;
+
+  return realValue;
+}
+
+double calculateAddedValue(
+    double financedValue, int numInstallments) {
+  double addedInstallmentValue = financedValue / numInstallments;
+
+  return addedInstallmentValue;
+}
+
+
