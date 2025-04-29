@@ -1,13 +1,17 @@
 import 'package:cet_app/core/constants/app_values.dart';
 import 'dart:math';
 
-double calculateEffectiveMonthlyRate(
-    double financedValue, double installmentValue, int numInstallments) {
+double monthlyRate(
+  double financedValue,
+  double installmentValue,
+  int numInstallments,
+) {
   double interestRate = 0.0;
 
-  double guessRate = AppValues.initialGuess; // Chute inicial da taxa
-  double tolerance = AppValues.tolerance; // Precisão desejada
-  int maxIterations = AppValues.maxIterations; // Máximo de iterações
+  double guessRate = AppValues.initialGuess; // Initial interest rate guess
+  double tolerance = AppValues.tolerance; // Desired precision
+  int maxIterations =
+      AppValues.maxIterations; // The maximum number of iterations
 
   for (int i = 0; i < maxIterations; i++) {
     double f = -financedValue;
@@ -19,29 +23,30 @@ double calculateEffectiveMonthlyRate(
       df += -n * installmentValue / (discountFactor * (1 + guessRate));
     }
 
-    double newRate = guessRate - f / df; // Método de Newton-Raphson
+    double newRate = guessRate - f / df; // Newton-Raphson method
 
     if ((newRate - guessRate).abs() < tolerance) {
       interestRate = guessRate;
-      return interestRate; // Retorna a taxa em porcentagem
+      return interestRate; // Interest rate in decimal format
     }
 
     guessRate = newRate;
   }
 
-  throw Exception("Falha ao calcular o CET. Pode não ter convergido.");
+  throw Exception("Failed calculating monthly rate, conversion failed.");
 }
 
-double calculateDesiredInstallmentValue(
-    double financedValue, double interestRate, int numInstallments) {
+double installmentValue(
+  double financedValue,
+  double interestRate,
+  int numInstallments,
+) {
   if (interestRate == 0) {
-    // Se a taxa de juros for zero, simplesmente dividimos o valor financiado pelo número de prestações
     return financedValue / numInstallments;
   }
 
-  double rate = interestRate; // Taxa já em formato decimal
+  double rate = interestRate; // Interest rate in decimal format
 
-  // Fórmula para cálculo da prestação
   double numerator = rate * pow(1 + rate, numInstallments);
   double denominator = pow(1 + rate, numInstallments) - 1;
 
@@ -50,18 +55,21 @@ double calculateDesiredInstallmentValue(
   return installmentValue;
 }
 
-double calculateRealFinancedValue(
-    double entryValue, int numInstallments, double installmentValue) {
+double realValue(
+  double entryValue,
+  int numInstallments,
+  double installmentValue,
+) {
   double realValue = entryValue + installmentValue * numInstallments;
 
   return realValue;
 }
 
-double calculateAddedValue(
-    double financedValue, int numInstallments) {
-  double addedInstallmentValue = financedValue / numInstallments;
+double addedValue(
+  double financedValue,
+  double realValue,
+) {
+  double addedValue = realValue - financedValue;
 
-  return addedInstallmentValue;
+  return addedValue;
 }
-
-

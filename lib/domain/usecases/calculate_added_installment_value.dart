@@ -1,9 +1,12 @@
 import 'package:cet_app/core/utils/calculations.dart';
 import 'package:cet_app/data/models/financing_model.dart';
 
-double calculateAddedInstallmentValue(FinancingModel financing) {
-  return calculateAddedValue(
+double calculateAddedValue(
+  FinancingModel financing,
+  double realValue,
+) {
+  return addedValue(
     financing.financedValue,
-    financing.numInstallments
-  ); // Convert to percentage
+    realValue,
+  );
 }

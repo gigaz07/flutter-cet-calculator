@@ -1,5 +1,5 @@
 import 'package:cet_app/core/theme/app_theme.dart';
-import 'package:cet_app/presentation/views/home_view.dart';
+import 'package:cet_app/presentation/views/home/home_view.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

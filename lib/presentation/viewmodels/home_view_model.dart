@@ -1,7 +1,7 @@
 import 'package:cet_app/data/models/financing_model.dart';
 import 'package:cet_app/domain/usecases/calculate_added_installment_value.dart';
-import 'package:cet_app/domain/usecases/calculate_cet.dart';
-import 'package:cet_app/domain/usecases/calculate_installment.dart';
+import 'package:cet_app/domain/usecases/calculate_monthly_rate_value.dart';
+import 'package:cet_app/domain/usecases/calculate_installment_value.dart';
 import 'package:cet_app/domain/usecases/calculate_real_value.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +62,7 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calculateCETValue() {
+  void calculateMonthlyRate() {
     double financedValue = totalValue - entryValue;
 
     if (financedValue <= 0 || numInstallments <= 0 || installmentValue <= 0) {
@@ -75,13 +75,13 @@ class HomeViewModel extends ChangeNotifier {
       installmentValue: installmentValue,
     );
 
-    cetValue = calculateCET(financing);
+    cetValue = calculateMonthlyRateValue(financing);
     realValue = calculateRealValue(financing, cetValue!, entryValue);
-    addedValue = calculateAddedInstallmentValue(financing);
+    addedValue = calculateAddedValue(financing, realValue!);
     notifyListeners(); // Updates the UI
   }
 
-  void calculateInstallmentValue() {
+  void calculateInstallment() {
     double financedValue = totalValue - entryValue;
 
     if (financedValue <= 0 || numInstallments <= 0 || interestValue <= 0) {
@@ -94,7 +94,7 @@ class HomeViewModel extends ChangeNotifier {
       interestValue: interestValue,
     );
 
-    desiredInstallmentValue = calculateInstallment(financing);
+    desiredInstallmentValue = calculateInstallmentValue(financing);
     notifyListeners(); // Updates the UI
   }
 }
