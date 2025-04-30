@@ -1,5 +1,5 @@
-import 'package:cet_app/presentation/viewmodels/home_view_model.dart';
-import 'package:cet_app/presentation/views/splash.dart';
+import 'package:cet_app/presentation/viewmodels/home_viewmodel.dart';
+import 'package:cet_app/presentation/views/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +7,7 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(
-        create: (context) => HomeViewModel(),
+        create: (context) => HomeViewmodel(),
       )
     ],
     child: MainApp(),
